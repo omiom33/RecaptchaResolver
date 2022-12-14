@@ -29,9 +29,9 @@ class Solution(object):
 
     def get_captcha_entry_iframe(self) -> WebElement:
         self.browser.switch_to.default_content()
-        captcha_entry_iframe = self.browser.find_element_by_css_selector(
-            'iframe[title="reCAPTCHA"]')
-        return captcha_entry_iframe
+        return self.browser.find_element_by_css_selector(
+            'iframe[title="reCAPTCHA"]'
+        )
 
     def switch_to_captcha_entry_iframe(self) -> None:
         captcha_entry_iframe: WebElement = self.get_captcha_entry_iframe()
@@ -39,9 +39,7 @@ class Solution(object):
 
     def get_captcha_content_iframe(self) -> WebElement:
         self.browser.switch_to.default_content()
-        captcha_content_iframe = self.browser.find_element_by_css_selector(
-            'iframe[src*="bframe?"]')
-        return captcha_content_iframe
+        return self.browser.find_element_by_css_selector('iframe[src*="bframe?"]')
 
     def switch_to_captcha_content_iframe(self) -> None:
         captcha_content_iframe: WebElement = self.get_captcha_content_iframe()
@@ -53,15 +51,14 @@ class Solution(object):
         return entire_captcha_element
 
     def get_entire_captcha_natural_width(self) -> Union[int, None]:
-        result = self.browser.execute_script(
-            "return document.querySelector('div.rc-image-tile-wrapper > img').naturalWidth")
-        if result:
+        if result := self.browser.execute_script(
+            "return document.querySelector('div.rc-image-tile-wrapper > img').naturalWidth"
+        ):
             return int(result)
         return None
 
     def get_entire_captcha_display_width(self) -> Union[int, None]:
-        entire_captcha_element = self.get_entire_captcha_element()
-        if entire_captcha_element:
+        if entire_captcha_element := self.get_entire_captcha_element():
             return entire_captcha_element.rect.get('width')
         return None
 
@@ -82,9 +79,11 @@ class Solution(object):
         return captcha_target_name_element.text
 
     def get_verify_button(self) -> WebElement:
-        verify_button = self.wait.until(EC.presence_of_element_located(
-            (By.CSS_SELECTOR, '#recaptcha-verify-button')))
-        return verify_button
+        return self.wait.until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, '#recaptcha-verify-button')
+            )
+        )
 
     def verify_single_captcha(self, index):
         time.sleep(3)
@@ -94,7 +93,7 @@ class Solution(object):
         class_name = single_captcha_element.get_attribute('class')
         logger.debug(f'verifiying single captcha {index}, class {class_name}')
         if 'selected' in class_name:
-            logger.debug(f'no new single captcha displayed')
+            logger.debug('no new single captcha displayed')
             return
         logger.debug('new single captcha displayed')
         single_captcha_url = single_captcha_element.find_element_by_css_selector(
@@ -160,7 +159,8 @@ class Solution(object):
             CAPTCHA_ENTIRE_IMAGE_FILE_PATH, (self.entire_captcha_natural_width,
                                              self.entire_captcha_natural_width))
         logger.debug(
-            f'resized_entire_captcha_base64_string, {resized_entire_captcha_base64_string[0:100]}...')
+            f'resized_entire_captcha_base64_string, {resized_entire_captcha_base64_string[:100]}...'
+        )
         entire_captcha_recognize_result = self.captcha_resolver.create_task(
             resized_entire_captcha_base64_string,
             get_question_id_by_target_name(self.captcha_target_name)
@@ -187,8 +187,7 @@ class Solution(object):
             verify_button.click()
             time.sleep(3)
 
-        is_succeed = self.get_is_successful()
-        if is_succeed:
+        if is_succeed := self.get_is_successful():
             logger.debug('verifed successfully')
         else:
             verify_error_info = self.get_verify_error_info()
